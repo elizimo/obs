@@ -11,7 +11,11 @@ const forecast = FileAttachment("./data/forecast.json").json();
 ```
 
 ```js
-forecast
+const x = view(Inputs.range([30,80], {step: 1}));
+```
+
+```js
+x
 ```
 
 ```js
@@ -28,7 +32,8 @@ function temperaturePlot(data, {width} = {}) {
         z: null, // varying color, not series
         stroke: "temperature",
         curve: "step-after"
-      })
+      }),
+        Plot.ruleY([x]),
     ]
   });
 }
