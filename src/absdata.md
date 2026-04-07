@@ -135,3 +135,13 @@ Plot.plot({
     ]
   })
 ```
+
+```js
+[...new Set(transdata.map(d => d.measure))]
+```
+```js
+[...new Set(transdata.map(d => d.region))]
+```
+```js
+[...new Set(transdata.map(d => d.industry))]
+```
