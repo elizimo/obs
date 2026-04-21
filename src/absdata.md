@@ -3,72 +3,11 @@ theme: dashboard
 toc: false
 ---
 
-
 # ABS Data
 
 ```js
-const absdata = FileAttachment("./data/absdata.json").json();
-```
-
-```js
-absdata
-```
-
-```js
-function transformABSData(absData) {
-  const dataset = absData.data.dataSets[0];
-  const structure = absData.data.structures[0];
-  const series = dataset.series;
-  const dimensions = structure.dimensions.series;
-
-  // Get the time periods from the observation dimension metadata
-  const observationDimension = structure.dimensions.observation.find(d => d.id === "TIME_PERIOD");
-  const timeValues = observationDimension?.values || [];
-
-  // Build a lookup for dimension values (e.g., measure, industry, region)
-  const dimLookups = dimensions.map(dim =>
-    Object.fromEntries(dim.values.map((v, i) => [i, v.name]))
-  );
-
-  const result = [];
-
-  for (const seriesKey in series) {
-    const seriesObj = series[seriesKey];
-    const keyParts = seriesKey.split(":").map(Number);
-
-    // Map series dimensions to labels
-    const seriesData = {};
-    dimensions.forEach((dim, i) => {
-      const valIdx = keyParts[i];
-      seriesData[dim.name.toLowerCase()] = dimLookups[i][valIdx];
-    });
-
-    // Observations (time series data)
-    const observations = seriesObj.observations;
-    for (const obsKey in observations) {
-      const [value] = observations[obsKey];
-      if (value === null) continue;
-
-      // Convert obsKey (index) to actual year using timeValues metadata
-      const timeIndex = parseInt(obsKey, 10);
-      const timeMeta = timeValues[timeIndex];
-      const year = timeMeta?.name || timeMeta?.id || obsKey; // Fallback if missing
-
-      result.push({
-        ...seriesData,
-        time: year,  // Replaces index with actual year (e.g., "2024")
-        value: value
-      });
-    }
-  }
-
-  return result;
-}
-
-```
-
-```js
-const transdata = transformABSData(absdata)
+import { fetchABSData } from "./components/data-transformer.js";
+const transdata = await fetchABSData("AUSTRALIAN_INDUSTRY")
 ```
 
 ```js
@@ -136,12 +75,11 @@ Plot.plot({
   })
 ```
 
+# Testing Section
 ```js
-[...new Set(transdata.map(d => d.measure))]
+const testraw = await fetch("https://data.api.abs.gov.au/rest/data/CWD/all?format=jsondata").then(r => r.json())
 ```
+
 ```js
-[...new Set(transdata.map(d => d.region))]
-```
-```js
-[...new Set(transdata.map(d => d.industry))]
+testraw
 ```
