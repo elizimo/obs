@@ -106,11 +106,18 @@ function calculateZScores(values) {
 
 /**
  * Function to detect anomalies based on z-score and a given threshold.
- * @param {Array<number>} values - An array of numbers.
+ * @param {Array<Object>|Array<number>} data - An array of data objects or numbers.
+ * @param {string|number} [valueFieldOrThreshold="value"] - The field to analyse or threshold if passing numbers.
  * @param {number} [threshold=3] - The z-score threshold for anomaly detection.
- * @returns {Array<boolean>} An array of booleans indicating whether each value is an anomaly.
+ * @returns {Array<Object>} The original data objects enriched with zscore and anomaly fields.
  */
-export function detectAnomalies(values, threshold = 3) {
-	const zScores = calculateZScores(values);
-	return zScores.map(z => Math.abs(z) > threshold);
+export function detectAnomalies(data, valueField = "value", threshold = 2) {
+  const values = data.map(d => d[valueField]);
+  const zScores = calculateZScores(values);
+
+  return data.map((d, i) => ({
+    ...d,
+    zscore: zScores[i],
+    anomaly: Math.abs(zScores[i]) > threshold
+  }));
 }
